@@ -16,7 +16,7 @@ body {
   position: relative;
   width: 100%;
   max-width: 800px;
-  height: 600px;                /* increase this when new tiles are added at the bottom */
+  height: 650px;                /* increase this when new tiles are added at the bottom */
   margin: 0 auto;
   border: 1px solid #ccc;
   background: #ffffff;
