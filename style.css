@@ -18,7 +18,7 @@ body {
   max-width: 800px;
   height: 650px;                /* increase this when new tiles are added at the bottom */
   margin: 0 auto;
-  border: 1px solid #ccc;
+  border: 0 solid #ccc;
   background: #ffffff;
   overflow: hidden;
 }
