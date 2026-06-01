@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>RSU is More Than Its Rank</title>
+  
+  <link rel="stylesheet" href="style.css" />
+  </style>
+</head>
+<body>
+  <div id="hex-container">
+    <h1 style="text-align: center; margin-top: 30px; font-family: sans-serif;">
+        Discover how RSU is more than its rank
+      </h1>
+    
+    <div id="legend" style="display: flex; justify-content: center; gap: 20px; margin: 10px 0 10px 20px;">
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 16px; height: 16px; background: #4b0023; display: inline-block; border-radius: 4px;"></span>
+        <span>Turning research into clinical practice</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 16px; height: 16px; background: #ff4b50; display: inline-block; border-radius: 4px;"></span>
+        <span>Shaping policy and public understanding</span>
+    </div>
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 16px; height: 16px; background: #a56996; display: inline-block; border-radius: 4px;"></span>
+        <span>Strengthening Latvia’s economy</span>
+    </div>
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="width: 16px; height: 16px; background: #ff8282; display: inline-block; border-radius: 4px;"></span>
+        <span>Adapting to societal needs</span>
+    </div>
+    </div>
+
+    <svg id="hexmap"></svg>
+    <div id="tooltip"></div>
+    <div id="popup">
+      <h3 id="popup-title"></h3>
+      <p id="popup-text"></p>
+      <button onclick="popup.style.display='none'">Close</button>
+    </div>
+  </div>
+
+  <script>
+    const svg = document.getElementById("hexmap");
+    const tooltip = document.getElementById("tooltip");
+    const popup = document.getElementById("popup");
+    const popupTitle = document.getElementById("popup-title");
+    const popupText = document.getElementById("popup-text");
+
+    const hexSize = 40;
+
+    const CLR_RESEARCH = "#4b0023";
+    const CLR_OUTREACH = "#ff4b50";
+    const CLR_ECONOMY = "#a56996";
+    const CLR_RELEVANCE = "#ff8282";
+
+    // Manually positioned hexagons
+    const data = {
+      "research-newborn-care": {
+        color: CLR_RESEARCH,
+        title: "Guidelines developed by RSU researchers improve maternal and newborn care",
+        text: `RSU researchers used survey data from 2021 to develop a curriculum for maternity staff and refine maternity care guidelines. As a result, the incidence of violence during childbirth decreased from 17% to 5%. Additionally, the percentage of young mothers who were not warned about health issues requiring attention dropped from 63% to 40%, while those not informed about their baby’s health concerns fell from 75% to 30%. <a href="https://www.rsu.lv/en/news/rsu-researchers-contribute-improving-maternal-and-newborn-care-latvia" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-remote-work": {
+        color: CLR_OUTREACH,
+        title: "RSU researchers shape remote work legislation in Latvia",
+        text: `RSU researchers prepared data-driven amendments to several laws, including the formal introduction of 'remote work' into Labour Law in 2020. These changes allowed employers to compensate remote workers for costs like electricity and internet and provided tax exemptions for such expenses. Ultimately, these reforms have improved work-life balance in sectors with high remote work rates, such as IT and finance, where over 50% of employees worked remotely in 2024. <a href="https://www.rsu.lv/en/news/rsu-researchers-initiate-amendments-laws-organisation-remote-work-latvia" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-teaching-quality": {
+        color: CLR_RELEVANCE,
+        title: "RSU's Centre for Educational Growth raises teaching quality across the higher education sector in Latvia and beyond",
+       text: `Since its establishment in 2014, the Centre for Educational Growth has played a pivotal role in fostering academic excellence by providing targeted, high-quality support for the professional development of academic staff. In addition to offering a broad range of continuing education initiatives for RSU academic staff, the Centre actively collaborates with more than 20 universities in Latvia and internationally, promoting the exchange of best practices and strengthening inter-institutional cooperation. Each year, the Centre offers an average of 340 academic hours of continuing professional development. In 2024 alone, it issued 5,417 certificates of participation in a diverse array of training activities. This comprehensive educational offer is further enriched by one-on-one consultations and meticulously developed methodological resources, which serve as practical guides to contemporary learning and teaching strategies. Through this multifaceted support, the Centre empowers academic staff to deepen their pedagogical expertise and modernise their courses—making them more student-centred, inclusive, and aligned with students’ learning needs. The Centre for Educational Growth has become a cornerstone of quality enhancement in higher education, inspiring thoughtful transformation and continuous advancement within the academic environment.  <a href="https://www.rsu.lv/en/ceg" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "research-fibromyalgia": {
+        color: CLR_RESEARCH,
+        title: "Tailored exercise therapy improves fibromyalgia patients' well-being",
+        text: `A pilot fibromyalgia study by RSU researchers helped 80% of participants reduce muscle pain and 70% improve physical endurance and sleep quality. Central to this new therapy is a tailored exercise programme. Research into the related biomarkers is ongoing. <a href="https://www.rsu.lv/en/news/rsu-researchers-improve-diagnosis-fibromyalgia" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-ai-integration": {
+        color: CLR_RELEVANCE,
+        title: "RSU sets the standard for AI integration into Latvian higher education",
+        text: `RSU’s Centre for Educational Growth is the first in Latvia to publish comprehensive guidelines for integrating AI into higher education. The guidelines provide lecturers with practical advice on ethical and effective AI use in teaching and help students understand how to use AI tools responsibly in their learning. <a href="https://www.rsu.lv/en/news/rsu-develops-first-guidelines-latvia-use-ai-higher-education" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "research-SMA-screening": {
+        color: CLR_RESEARCH,
+        title: "RSU initiative saves newborns' lives through early SMA screening",
+        text: `RSU researchers’ initiative led to the inclusion of spinal muscular atrophy (SMA) testing in Latvia’s national newborn screening programme. Early diagnosis through this programme has already saved three newborns by enabling treatment before symptoms appear, significantly improving their prognosis and quality of life. <a href="https://www.rsu.lv/en/news/rsu-initiative-saves-lives-three-newborns" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-child-safety": {
+        color: CLR_OUTREACH,
+        title: "Seven years of raising awareness on child safety and first aid",
+        text: `The free annual event 'Zinošs un drošs', organised by RSU and partners, attracted around 1,400 visitors in 2024. Through engaging activities, children and their families learned about first aid, fire safety, and accident prevention. Held for seven consecutive years, the event promotes healthier and safer lifestyles within the community. <a href="https://www.rsu.lv/aktualitates/bezmaksas-izglitojosais-pasakums-zinoss-un-dross-pulce-daudz-interesentu" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-kantar-reputation": {
+         color: CLR_OUTREACH,
+         title: "RSU leads in public trust among Latvian universities",
+         text: `For nine consecutive years, RSU has been recognised by the Latvian public as the university with the best reputation in the country. This recognition comes from an annual nationwide survey conducted by Latvia's leading social and media research company, Kantar, which interviews over 1,000 residents aged 15-60. <a href="https://www.rsu.lv/en/news/rsu-tops-university-reputation-rankings-latvia-ninth-consecutive-year" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+       },
+
+       "economy-best-employer": {
+        color: CLR_ECONOMY,
+        title: "RSU voted as best public sector employer for four consecutive years",
+        text: `RSU was named Latvia’s most desirable public sector employer for the fourth consecutive year in the 2025 TOP Employer survey, which gathered responses from over 18,000 participants. This recognition reflects RSU’s socially sustainable employment practices, which prioritise individual well-being, professional growth, and a supportive working environment for all members of staff. <a href="https://www.rsu.lv/en/news/riga-stradins-university-named-most-desirable-public-sector-employer-fourth-successive-year" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-researchers-night": {
+        color: CLR_OUTREACH,
+        title: "RSU connects science with the public at the annual Researchers’ Night",
+        text: `Nearly 3,000 visitors participated in RSU Researchers’ Night events in 2024, with people of all ages enjoying hands-on workshops in dentistry, surgery, sports science, and chemistry. This annual event promotes science awareness and education, inspiring the public and especially young people to explore scientific careers. <a href="https://www.rsu.lv/aktualitates/zinatnieku-nakts-rigas-stradina-universitate-pulcejusi-3000-interesentu" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-military-medicine": {
+        color: CLR_RELEVANCE,
+        title: "RSU pioneers military medicine education in the Baltics",
+        text: `RSU was the first university in the Baltics to integrate military medicine into its medical curriculum in 2023. Developed in collaboration with the Latvian Ministry of Defence and National Armed Forces, the course uses advanced simulation and immersive training to equip future healthcare professionals with essential skills to manage emergencies in military and disaster settings. <a href="https://www.rsu.lv/en/news/rsu-management-and-minister-defence-andris-spruds-discuss-importance-military-medicine-context" target="_blank" style="color: #fff; text-decoration: underline;">Learn about the progress and future plans of this initiative.</a>`
+      },
+
+      "economy-education-export" :{
+        color: CLR_ECONOMY,
+        title: "RSU's higher education exports contribute 0.31% to Latvia's GDP",
+        text: `A study by the Latvian Strategy and Economic Research Institute estimated that, in 2024, RSU's higher education exports alone contributed approximately 0.31% to Latvia's GDP. If the university continues to grow its international student base at the current rate, it is projected to generate over €1 billion in economic value over the next six years, averaging an annual contribution of around 0.4% of GDP. <a href="https://www.rsu.lv/en/news/international-students-driving-force-latvias-economic-growth-higher-education-export-study" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-international-partnerships" : {
+        color: CLR_RELEVANCE,
+        title: "RSU’s international partnerships support training aligned with students’ home country needs",
+        text: `RSU’s <a href="https://www.rsu.lv/en/international-cooperation/partner-hospitals" target="_blank" style="color: #fff; text-decoration: underline;">international partnerships</a> offer medical study placements in Germany, Finland, Italy, Israel, and Portugal, allowing students to train in environments where they speak the local language. Additionally, <a href="https://www.rsu.lv/en/rsu-stade-branch" target="_blank" style="color: #fff; text-decoration: underline;">RSU Stade branch</a>, in collaboration with Elbe Klinikum Stade, enables German students to complete their full clinical training from Year 4 onward locally. These opportunities ensure that international students gain practical experience tailored to the healthcare systems and needs of their home countries.`
+      },
+
+      "outreach-research-week": {
+        color: CLR_OUTREACH,
+        title: "RSU hosts one of the leading interdisciplinary scientific events in Northern Europe",
+        text: `Every two years, RSU Research Week brings together academics, industry professionals, and policymakers to exchange insights and address pressing issues in health and society. In 2025, this forum attracted nearly 9,000 participants from 72 countries. <a href="https://www.rsu.lv/en/news/most-significant-scientific-event-year-rsu-research-week-has-concluded" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-medicine-3": {
+       color: CLR_RELEVANCE,
+       title: "RSU launches a new era in Latvian medical education with 'Medicine 3.0'",
+        text: `In September 2025, RSU will launch a fundamentally reimagined medical programme, dubbed 'Medicine 3.0', that revises 50–60% of the previous curriculum to include digital health, AI, entrepreneurial skills, legal knowledge, and strengthened research training. Developed with input from students, clinicians, and industry experts, the programme aims to prepare future doctors for rapidly evolving healthcare challenges. <a href="https://www.rsu.lv/en/news/medicine-30-study-programme-new-era-latvian-medical-education" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "research-medical-simulations": {
+        color: CLR_RESEARCH,
+        title: "RSU leads the integration of simulation-based medical and healthcare education strategy in Latvia",
+         text: `RSU leads the national working group, in collaboration with Latvia’s Ministry of Health, to develop a strategic framework for integrating simulation into all levels of clinical training. The goal is to enhance professional competence and patient safety across Latvia's healthcare system. RSU is well positioned to drive this transition toward safer and more effective medical education, owing to its long-standing expertise and advanced infrastructure. <a href="https://www.rsu.lv/en/news/rsu-metc-promotes-initiative-simulation-based-medical-and-healthcare-education-development" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+          },
+
+      "outreach-labour-protection": {
+        color: CLR_OUTREACH,
+        title: "RSU research underpins national labour protection measures 2024-2027",
+        text: `RSU researchers' analysis of workplace accidents shaped the labour protection measures included in the National Development Plan for Labour Protection for 2024–2027, approved by the Cabinet of Ministers. Scientists' data-driven proposals aim to promote employee well-being, improve labour productivity, and reduce the number of workplace accidents. <a href="https://www.rsu.lv/en/news/rsu-researchers-improve-occupational-safety-latvia" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-military-preparedness":{
+        color: CLR_RELEVANCE,
+       title: "RSU strengthens national preparedness for crisis situations",
+        text: `Given its extensive experience and available equipment, RSU’s Medical Education Technology Centre regularly participates in simulation exercises organised by the National Armed Forces and the National Guard of the Republic of Latvia. These exercises enhance the nation's preparedness for military and civil-military crisis situations. <a href="https://mitc.rsu.lv/en/news/panaceja-2025-metc-simulation-solutions-strengthen-states-readiness-crisis-situations" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-alcohol-consumption": {
+        color: CLR_OUTREACH,
+        title: "RSU researchers support evidence-based amendments to alcohol policies",
+         text: `Researchers from the RSU Institute of Public Health analysed alcohol consumption patterns and the associated health and economic impacts over a period of over 30 years, examining the effects of alcohol control measures implemented during that time. By actively engaging with policymakers, the researchers contributed to evidence-based amendments to the law adopted in 2025, aimed at reducing alcohol consumption and mitigating the related harms. <a href="https://www.rsu.lv/en/news/rsu-researchers-support-evidence-based-recommendations-reducing-alcohol-consumption-latvia" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+          },
+
+      "outreach-reproductive-education":{
+        color: CLR_OUTREACH,
+       title: "RSU research improves reproductive health awareness and accessibility in Latvia",
+        text: `In 2023, the RSU Institute of Public Health conducted a monitoring study on factors affecting sexual and reproductive health in Latvia and actively communicated its findings to policymakers and the wider public. The results of this study were used to develop educational materials and to support the establishment of a new free reproductive health service in Riga. <a href="https://www.rsu.lv/en/news/rsu-tackles-stigma-spotlight-sexual-and-reproductive-health-healthcare" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-sports-education":{
+        color: CLR_OUTREACH,
+       title: "RSU LASE experts shape sports education policy in Latvia",
+        text: `Over a period of eight years, researchers from the RSU Latvian Academy of Sport Education (LASE) contributed to the development of the new 'Sport and Health' curriculum as part of the national primary and secondary education reform 'Skola2030'. The experts created digital teaching materials and organised seminars for teachers. <a href="https://www.rsu.lv/en/news/how-rsu-latvian-academy-sport-education-experts-are-driving-change-latvias-sport-education" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "research-hereditary-cancer":{
+        color: CLR_RESEARCH,
+       title: "RSU leads hereditary cancer research in Latvia",
+        text: `The RSU Institute of Oncology and Molecular Genetics has been leading hereditary cancer research, management, and awareness campaigns in Latvia for over 25 years. The centre's work has driven innovations in genetic testing and digital screening for hereditary cancer cases, and even led to the establishment of the first hereditary cancer outpatient clinic in the country. Over time, its research and outreach activities have not only reduced the morbidity and mortality of breast and ovarian cancer, but also improved cancer survivors' quality of life. <a href="https://www.rsu.lv/en/news/25-years-impact-hereditary-breast-and-ovarian-cancer-awareness-and-management-latvia" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-public-trust-media":{
+        color: CLR_OUTREACH,
+       title: "RSU researchers develop recommendations for promoting public trust in the media",
+        text: `By collaborating with Estonian colleagues and engaging industry representatives, researchers from the RSU Faculty of Social Sciences carried out an extensive qualitative audience research to better understand the formation of public perceptions of the media. Based on the data, they developed recommendations for media professionals and policymakers to help reduce the increasingly negative public attitudes towards the media and journalism. <a href="https://www.rsu.lv/en/news/rsu-researchers-and-industry-representatives-seek-solutions-promote-public-trust-media" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "economy-innovation-leader":{
+        color: CLR_ECONOMY,
+       title: "RSU recognised as a leading centre of innovation in Latvia",
+        text: `The Global Innovation Index 2025, compiled annually by the World Intellectual Property Organization, recognised RSU as one of three leading centres of innovation in Latvia. This index takes into account university performance in the QS World University Rankings, as well as the International Outlook and Industry pillars of the Times Higher Education World University Rankings. <a href="https://www.rsu.lv/en/news/rsu-recognised-leading-centre-innovation" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "economy-lifelong-learning":{
+        color: CLR_ECONOMY,
+       title: "RSU contributes to bridging the digital skills gap in Latvia's labour market",
+        text: `RSU's Lifelong Learning Centre continuously monitors skills gaps in Latvia's labour market and develops new courses to help address them. For example, in 2025, the Centre responded to rapid technological advancements and the resulting growing digital skills gap by <a href="https://www.rsu.lv/aktualitates/muzizglitibas-centrs-paplasina-apmacibu-iespejas-pieaugusajiem" target="_blank" style="color: #fff; text-decoration: underline;">launching three new programmes</a> on generative AI, digital communication, and futures thinking. <a href="https://www.rsu.lv/en/lifelong-learning-centre" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-ai-centre": {
+       color: CLR_RELEVANCE,
+       title: "RSU establishes an Artificial Intelligence Support Unit",
+        text: `In 2025, RSU became the first university in Latvia to establish a dedicated Artificial Intelligence (AI) Support Unit. In response to the challenges and opportunities presented by AI technologies, the unit works to accelerate the adoption and integration of AI tools in teaching, research, and operational processes. <a href="https://www.rsu.lv/en/news/rsu-becomes-first-university-latvia-establish-dedicated-ai-support-unit" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "relevance-ai-programme": {
+       color: CLR_RELEVANCE,
+       title: "RSU launches Latvia's first master's programme on AI management",
+        text: `Responding to the technological advancements that are reshaping labour market needs, RSU launched Latvia's first master's programme designed to equip future managers with the theoretical knowledge and practical skills needed to implement AI solutions and digital strategies in business and public administration. Titled <i>{a href="https://www.rsu.lv/en/study-programme/digital-strategy-and-artificial-intelligence-management" target="_blank" style="color: #fff; text-decoration: underline;">Digital Strategy and Artificial Intelligence Management</i></a>, the programme is delivered by technology and communications experts with experience at CERN, Microsoft, IBM, and other major companies, organisations, and projects. <a href="https://www.rsu.lv/en/news/rsu-launches-new-masters-programme-digital-strategy-and-artificial-intelligence" target="_blank" style="color: #fff; text-decoration: underline;">Learn more.</a>`
+      },
+
+      "outreach-regional-security":{
+        color: CLR_OUTREACH,
+       title: "RSU researchers organise seminars on regional resilience and security",
+        text: `In 2025 and 2026, researchers from the RSU Faculty of Social Sciences organised a series of five day-long seminars titled <i>Strengthening Security in Latvia [..]: Types of Threats and Their Prevention</i>, held outside the capital in collaboration with regional academic partners. Each seminar was dedicated to a specific region of Latvia, bringing together industry experts, national policymakers, local government representatives, and law enforcement officials. The seminars were free for anyone to attend. <a href="https://www.rsu.lv/aktualitates/aicinam-uz-nosledzoso-rsu-petnieku-seminaru-par-drosibas-stiprinasanu-latvija-un" target="_blank" style="color: #fff; text-decoration: underline;">Learn more about the fifth and final seminar.</a>`
+      },
+
+    };
+    
+    const layout = [
+      {
+        id: "research-newborn-care",
+        x: 160, y: 100,
+      },
+      {
+        id: "outreach-remote-work",
+        x: 240, y: 140,
+      },
+      {
+        id: "relevance-teaching-quality", 
+        x: 320, y: 100,
+      },
+      {
+        id: "research-fibromyalgia",
+        x: 400, y: 140,
+      },
+      {
+        id: "relevance-ai-integration",
+        x: 480, y: 100,
+      },
+      {
+        id: "research-SMA-screening",
+        x: 560, y: 140,
+      },
+      {
+        id: "outreach-child-safety",
+        x: 640, y: 100,
+      },
+       {
+        id: "outreach-kantar-reputation",
+        x: 160, y: 190,
+       },
+       {
+        id: "economy-best-employer",
+        x: 240, y: 230,
+      },
+       {
+        id: "outreach-researchers-night",
+        x: 320, y: 190,
+      },
+      {
+        id: "relevance-military-medicine",
+        x: 400, y: 230,
+      },
+      {
+        id: "economy-education-export",
+        x: 480, y: 190,
+      },
+      {
+        id: "relevance-international-partnerships",
+        x: 560, y: 230,
+          },
+      {
+        id: "outreach-research-week",
+        x: 640, y: 190,
+      },
+      {
+        id: "relevance-medicine-3",
+        x: 160, y: 280,
+      },
+   {
+         id:"outreach-alcohol-consumption",
+        x: 240, y: 320,
+      },
+      {
+        id: "research-medical-simulations",
+        x: 320, y: 280,
+        },
+       {
+         id:"outreach-reproductive-education",
+        x: 400, y: 320,
+      },
+       {
+        id: "outreach-labour-protection",
+        x: 480, y: 280,
+      },
+        {
+         id:"economy-innovation-leader",
+        x: 560, y: 320,
+      },
+       {
+        id: "relevance-military-preparedness",
+        x: 640, y: 280,
+      },
+        {
+        id: "outreach-regional-security",
+        x: 160, y: 370,
+      },
+    {
+         id: "economy-lifelong-learning",
+        x: 240, y: 410,
+      },
+      {
+        id: "relevance-ai-centre",
+        x: 320, y: 370,
+        },
+       {
+         id:"outreach-public-trust-media",
+        x: 400, y: 410,
+      },
+       {
+        id: "research-hereditary-cancer",
+        x: 480, y: 370,
+      },
+        {
+         id: "relevance-ai-programme",
+        x: 560, y: 410,
+      },
+       {
+        id:  "outreach-sports-education",
+        x: 640, y: 370,
+      },
+
+    ];
+
+
+    function hexagonPath(cx, cy, r) {
+      let path = "";
+      for (let i = 0; i < 6; i++) {
+        const angle = Math.PI / 3 * i;
+        const x = cx + r * Math.cos(angle);
+        const y = cy + r * Math.sin(angle);
+        path += (i === 0 ? "M" : "L") + x + "," + y;
+      }
+      return path + "Z";
+    }
+
+    layout.forEach(d => {
+      const c = data[d.id];
+      const hex = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      hex.setAttribute("d", hexagonPath(d.x, d.y, hexSize));
+      hex.setAttribute("fill", c.color);
+      hex.classList.add("hex");
+
+      hex.addEventListener("mouseover", e => {
+        tooltip.innerText = c.title;
+        tooltip.style.visibility = "visible";
+      });
+
+      hex.addEventListener("mousemove", e => {
+        const containerRect = document.getElementById("hex-container").getBoundingClientRect();
+        const x = e.clientX - containerRect.left;
+        const y = e.clientY - containerRect.top;
+
+        tooltip.style.left = (x + 5) + "px";
+        tooltip.style.top = (y +5) + "px";
+        });
+
+      hex.addEventListener("mouseout", () => {
+        tooltip.style.visibility = "hidden";
+      });
+
+      hex.addEventListener("click", e => {
+        popupTitle.innerText = c.title;
+        popupText.innerHTML = c.text;
+        popup.style.backgroundColor = c.color;
+
+        const containerRect = document.getElementById("hex-container").getBoundingClientRect();
+        const popupWidth = popup.offsetWidth;
+        const popupHeight = popup.offsetHeight;
+
+        let left = e.clientX - containerRect.left + 20; // default right offset
+        let top = e.clientY - containerRect.top + 20;   // default below offset
+
+        // If popup would overflow container width, show it to the left instead
+        if (left + popupWidth > containerRect.width) {
+            left = e.clientX - containerRect.left - popupWidth - 20;
+        }
+
+        // Prevent popup from overflowing bottom
+        if (top + popupHeight > containerRect.height) {
+            top = containerRect.height - popupHeight - 10;
+        }
+        // Prevent popup from overflowing top
+        if (top < 0) {
+            top = 10;
+        }
+
+        popup.style.left = left + "px";
+        popup.style.top = top + "px";
+        popup.style.display = "block";
+        });
+
+
+      svg.appendChild(hex);
+    });
+  </script>
+</body>
+</html>

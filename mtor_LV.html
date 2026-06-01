@@ -3,79 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>RSU ir kas vairāk par vietu reitingos</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      background: #ffffff;
-    }
-
-    #hex-container {
-      position: relative;
-      width: 100%;
-      max-width: 800px;
-      height: 600px;
-      margin: 50px auto;
-      border: 0px solid #ccc;
-      background: white;
-    }
-
-    svg {
-      width: 100%;
-      height: 100%;
-    }
-
-    .hex:hover {
-      stroke: #f5ce0a;
-      stroke-width: 2;
-      cursor: pointer;
-    }
-
-    #tooltip {
-      position: absolute;
-      background: #333;
-      color: #fff;
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-size: 14px;
-      pointer-events: none;
-      visibility: hidden;
-      z-index: 1000;
-    }
-
-    #popup {
-      position: absolute;
-      padding: 15px;
-      color: white;
-      border-radius: 6px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-      max-width: 250px;
-      display: none;
-      z-index: 10;
-    }
-
-    #popup h3 {
-      margin: 0 0 10px 0;
-      color: #FFFFFF;
-    }
-
-    #popup button {
-      margin-top: 10px;
-      background: rgba(255,255,255,0.2);
-      color: white;
-      border: none;
-      padding: 5px 10px;
-      cursor: pointer;
-    }
-
-    #popup-title{
-      color: white;
-      }
-
-    #popup button:hover {
-      background: rgba(255,255,255,0.4);
-    }
-  </style>
+  
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="hex-container">
@@ -257,7 +186,7 @@
       "economy-lifelong-learning":{
         color: CLR_ECONOMY,
        title: "RSU palīdz mazināt digitālo prasmju plaisu Latvijas darba tirgū",
-        text: `RSU Mūžizglītības centrs pastāvīgi seko līdzi Latvijas darba tirgū pieprasītajām prasmēm un izstrādā jaunas mācību programmas, lai mazinātu šo prasmju trūkumu. Piemēram, ņemot vērā straujo tehnoloģisko attīstību un augošo digitālo prasmju plaisu, Mūžizglītības centrs 2025.gadā <a href="https://www.rsu.lv/aktualitates/muzizglitibas-centrs-paplasina-apmacibu-iespejas-pieaugusajiem">paplašināja piedāvājumu ar trim jaunām mācību programmām</a> par ģeneratīvo mākslīgo intelektu, digitālo komunikāciju un nākotnes domāšanu. <a href="https://www.rsu.lv/muzizglitibas-centrs" target="_blank" style="color: #fff; text-decoration: underline;">Uzzini vairāk.</a>`
+        text: `RSU Mūžizglītības centrs pastāvīgi seko līdzi Latvijas darba tirgū pieprasītajām prasmēm un izstrādā jaunas mācību programmas, lai mazinātu šo prasmju trūkumu. Piemēram, ņemot vērā straujo tehnoloģisko attīstību un augošo digitālo prasmju plaisu, Mūžizglītības centrs 2025.gadā <a href="https://www.rsu.lv/aktualitates/muzizglitibas-centrs-paplasina-apmacibu-iespejas-pieaugusajiem" target="_blank" style="color: #fff; text-decoration: underline;">paplašināja piedāvājumu ar trim jaunām mācību programmām</a> par ģeneratīvo mākslīgo intelektu, digitālo komunikāciju un nākotnes domāšanu. <a href="https://www.rsu.lv/muzizglitibas-centrs" target="_blank" style="color: #fff; text-decoration: underline;">Uzzini vairāk.</a>`
       },
 
       "relevance-ai-centre": {
@@ -269,7 +198,7 @@
       "relevance-ai-programme": {
        color: CLR_RELEVANCE,
        title: "RSU izveido Latvijā pirmo maģistra programmu MI vadībā",
-        text: `Reaģējot uz tehnoloģiju attīstību un ar to saistītajām izmaiņām darba tirgus vajadzībās, RSU izveidoja Latvijā pirmo maģistra studiju programmu, kuras mērķis ir sniegt topošajiem vadītājiem teorētiskas zināšanas un praktisku pieredzi MI risinājumu un digitālās stratēģijas ieviešanai uzņēmumos un valsts pārvaldē. Programmu <a href="https://www.rsu.lv/studiju-programma/digitalas-strategijas-un-maksliga-intelekta-vadiba">"Digitālās stratēģijas un mākslīgā intelekta vadība"</a> pasniedz tehnoloģiju un komunikācijas eksperti ar pieredzi CERN, Microsoft, IBM un citos lielos uzņēmumos, organizācijās un projektos. <a href="https://www.rsu.lv/en/news/rsu-launches-new-masters-programme-digital-strategy-and-artificial-intelligence" target="_blank" style="color: #fff; text-decoration: underline;">Uzzini vairāk.</a>`
+        text: `Reaģējot uz tehnoloģiju attīstību un ar to saistītajām izmaiņām darba tirgus vajadzībās, RSU izveidoja Latvijā pirmo maģistra studiju programmu, kuras mērķis ir sniegt topošajiem vadītājiem teorētiskas zināšanas un praktisku pieredzi MI risinājumu un digitālās stratēģijas ieviešanai uzņēmumos un valsts pārvaldē. Programmu <a href="https://www.rsu.lv/studiju-programma/digitalas-strategijas-un-maksliga-intelekta-vadiba" target="_blank" style="color: #fff; text-decoration: underline;">"Digitālās stratēģijas un mākslīgā intelekta vadība"</a> pasniedz tehnoloģiju un komunikācijas eksperti ar pieredzi CERN, Microsoft, IBM un citos lielos uzņēmumos, organizācijās un projektos. <a href="https://www.rsu.lv/en/news/rsu-launches-new-masters-programme-digital-strategy-and-artificial-intelligence" target="_blank" style="color: #fff; text-decoration: underline;">Uzzini vairāk.</a>`
       },
 
       "outreach-regional-security":{
